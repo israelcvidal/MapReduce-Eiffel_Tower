@@ -74,8 +74,9 @@ object Eiffel_Tower {
 		val wordsData = tokenizer.transform(sentencesData)
 		val filteredData = remover.transform(wordsData)
 
-		//val (model, featurizedData) = countVectorizer(filteredData)
-		val (model, featurizedData) = tfidf(filteredData)
+		val USE_TF_IDF = true
+
+		val (model, featurizedData) = if (USE_TF_IDF) tfidf(filteredData) else countVectorizer(filteredData)
 
 		val parsedData = featurizedData.select("features").rdd
 			.map(x => Vectors.dense(x.getAs[SparseVector](0).toDense.toArray))
@@ -86,14 +87,17 @@ object Eiffel_Tower {
 
 		val ldaModel = new LDA().setK(k).run(corpus)
 
-		//val vocabulary = model.vocabulary
+		val vocabulary = if (!USE_TF_IDF) model.asInstanceOf[CountVectorizerModel].vocabulary else null
+
 		val topics = ldaModel.topicsMatrix
 		for (topic <- Range(0, numFeatures)) {
 			print("Topic " + topic + ":")
 			for (word <- Range(0, ldaModel.vocabSize)) {
-				//print(" ( " + vocabulary(word) + ",")
-				print(" " + topics(word, topic))
-				//print(")")
+				var s = " " + topics(word, topic)
+				if (!USE_TF_IDF) {
+					s = " ( " + vocabulary(word) + "," + s + ")"
+				}
+				print(s)
 			}
 			println()
 		}
