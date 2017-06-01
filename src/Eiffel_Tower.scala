@@ -1,19 +1,19 @@
-import org.apache.spark.mllib.clustering.{DistributedLDAModel, LDA}
+import org.apache.spark.mllib.clustering.{LDA, LDAModel}
 import org.apache.spark.ml.feature._
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.SparkConf
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.ml.linalg.SparseVector
 import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.types.{ArrayType, StringType, StructField, StructType}
 
 /**
   * Created by israelcvidal on 28/05/17.
   */
 object Eiffel_Tower {
 
-	val k = 10
-	val numFeatures = 10
+	val k = 5
 
     def main(args: Array[String]) {
 
@@ -26,7 +26,6 @@ object Eiffel_Tower {
           .config(conf)
           .getOrCreate()
 
-
         val stopWords = spark.sparkContext.textFile("Dataset/stop-word-list.csv").flatMap(line => line.split(", ")).collect()
         val file = "Dataset/eiffel-tower-reviews.json"
         val textFile = spark.read.json(file).toDF
@@ -37,66 +36,75 @@ object Eiffel_Tower {
 		//printTopKSentences(textColumn)
 		//printTopKDates(textFile)
 
-		runLDA(textFile)
+		runLDA(textFile, spark)
 
     }
-
-	def tfidf(data: DataFrame): (IDFModel, DataFrame) = {
-		val hashingTF = new HashingTF()
-			.setInputCol("filtered")
-			.setOutputCol("rawFeatures")
-			.setNumFeatures(numFeatures)
-		val featurizedData = hashingTF.transform(data)
-
-		val idf = new IDF().setInputCol("rawFeatures").setOutputCol("features")
-		val idfModel = idf.fit(featurizedData)
-
-		return (idfModel, idfModel.transform(featurizedData))
-	}
 
 	def countVectorizer(data: DataFrame): (CountVectorizerModel, DataFrame) = {
 		val cvModel: CountVectorizerModel = new CountVectorizer()
 		.setInputCol("filtered")
 		.setOutputCol("features")
-		.setVocabSize(30)
-		.setMinDF(2)
+		.setVocabSize(200)
+		.setMinTF(0.05)
+		.setMinDF(0.05)
 		.fit(data)
 
 		return (cvModel, cvModel.transform(data))
 	}
 
-	def runLDA(data: DataFrame): Unit = {
-		val sentencesData = data.select("text").where(data.col("text").isNotNull)
+	def runLDA(data: DataFrame, spark: SparkSession): Unit = {
+		val useCol = "text"
+		val sentencesData = data.select(useCol).where(data.col(useCol).isNotNull)
 
-		val tokenizer = new Tokenizer().setInputCol("text").setOutputCol("words")
+		val tokenizer = new Tokenizer().setInputCol(useCol).setOutputCol("words")
 		val remover = new StopWordsRemover().setInputCol("words").setOutputCol("filtered")
 
+		val filterSet = "!?,.".toSet
 		val wordsData = tokenizer.transform(sentencesData)
 		val filteredData = remover.transform(wordsData)
 
-		val USE_TF_IDF = true
+		val tooFrequentWords = filteredData.select("filtered").rdd
+			.flatMap(x => x.getAs[Seq[String]](0))
+			.map(x => x.filterNot(filterSet))
+			.map(x => (x, 1))
+			.reduceByKey(_+_)
+			.sortBy(x => x._2, ascending = false)
+			.map(x => x._1)
+			.take(10)
+			.toSeq
 
-		val (model, featurizedData) = if (USE_TF_IDF) tfidf(filteredData) else countVectorizer(filteredData)
+		import spark.sqlContext.implicits._
+		val newFiltered = filteredData.rdd
+			.map(x => x.getAs[Seq[String]]("filtered").map(y => y.filterNot(filterSet)).diff(tooFrequentWords))
+			.toDF("filtered")
+
+		val (model, featurizedData) = countVectorizer(newFiltered)
+		val vocabulary = model.vocabulary
 
 		val parsedData = featurizedData.select("features").rdd
 			.map(x => Vectors.dense(x.getAs[SparseVector](0).toDense.toArray))
 
 		val corpus = parsedData.zipWithIndex.map(_.swap).cache()
 
-		//corpus.take(5).foreach(println)
+		val lda = new LDA().setK(k)
+		val ldaModel = lda.run(corpus)
 
-		val ldaModel = new LDA().setK(k).run(corpus)
+		//printLdaMatrix(ldaModel, model)
 
-		val vocabulary = if (!USE_TF_IDF) model.asInstanceOf[CountVectorizerModel].vocabulary else null
+		// Describe topics.
+		val topics = ldaModel.describeTopics(8)
+		println("The topics described by their top-weighted terms:")
+		val topicsDesc = topics.zipWithIndex.map(x => (x._2+1, x._1._1.map(x => vocabulary(x))))
+		topicsDesc.foreach(x => println("Topic " + x._1 + ": " + x._2.mkString(", ")))
 
+	}
+
+	def printLdaMatrix(ldaModel : LDAModel, vocabulary: Array[String]): Unit ={
 		val topics = ldaModel.topicsMatrix
-		for (topic <- Range(0, numFeatures)) {
+		for (topic <- Range(0, k)) {
 			print("Topic " + topic + ":")
 			for (word <- Range(0, ldaModel.vocabSize)) {
-				var s = " " + topics(word, topic)
-				if (!USE_TF_IDF) {
-					s = " ( " + vocabulary(word) + "," + s + ")"
-				}
+				val s = " ( " + vocabulary(word) + "," + topics(word, topic) + ")"
 				print(s)
 			}
 			println()
