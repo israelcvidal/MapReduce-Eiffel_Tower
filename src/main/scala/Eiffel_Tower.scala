@@ -6,13 +6,15 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.ml.linalg.SparseVector
 import org.apache.spark.rdd.RDD
+import com.github.vspiewak.util.SentimentAnalysisUtils.{detectSentiment, SENTIMENT_TYPE}
+
 
 /**
   * Created by israelcvidal on 28/05/17.
   */
 object Eiffel_Tower {
 
-	val k = 5
+	val k = 30
 
     def main(args: Array[String]) {
 			Logger.getLogger("org").setLevel(Level.OFF)
@@ -31,12 +33,12 @@ object Eiffel_Tower {
 			val textColumn = textFile.select("text").rdd.map(line => line.toString().filterNot(toRemove).toLowerCase)
 			val titleColumn = textFile.select("title").rdd.map(line => line.toString().filterNot(toRemove).toLowerCase)
 
-//		printTopKWords(textColumn, stopWords)
-//		printTopKSentences(textColumn)
-//		printTopKDates(textFile)
-
-//		runLDA(textFile, spark)
-			printTopKTopics(titleColumn)
+//    		printTopKWords(textColumn, stopWords)
+//	    	printTopKSentences(textColumn)
+//	    	printTopKDates(textFile)
+//		    runLDA(textFile, spark)
+//			printTopKTopics(titleColumn)
+            printTopKSentiments(textColumn)
     }
 
 	def countVectorizer(data: DataFrame): (CountVectorizerModel, DataFrame) = {
@@ -128,7 +130,7 @@ object Eiffel_Tower {
 
 	def printTopKSentences(data: RDD[String]): Unit = {
 		val sentenceCount = data
-			.flatMap((line: String) => line.toString().split("\\. |\\? |\\! |\\, |\\; "))
+			.flatMap(line => line.toString().split("\\. |\\? |\\! |\\, |\\; "))
 			.filter(sentence => sentence.split(" ").length > 1)
 			.map(sentence => (sentence, 1))
 			.reduceByKey(_ + _)
@@ -166,5 +168,19 @@ object Eiffel_Tower {
 		println("Top " + k + " topics: ")
 		topKwords.foreach(println)
 	}
+
+    def printTopKSentiments(data: RDD[String]): Unit = {
+        val sentimentCount = data
+        .flatMap(line => line.toString().split("\\. |\\? |\\! |\\, |\\; "))
+        .map(sentence => (detectSentiment(sentence), 1))
+        .reduceByKey(_ + _)
+
+        val topKsentiments = sentimentCount
+        .sortBy(word => word._2, ascending = false)
+        .take(k)
+
+        println("Top " + k + " sentiments: ")
+        topKsentiments.foreach(println)
+    }
 
 }

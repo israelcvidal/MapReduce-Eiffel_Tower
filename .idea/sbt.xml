@@ -6,6 +6,8 @@
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
         <option name="modules">
           <set>
+            <option value="$USER_HOME$/.sbt/0.13/staging/68fabe6f0b0926e03817/twitter-sentiment-analysis" />
+            <option value="$USER_HOME$/.sbt/0.13/staging/68fabe6f0b0926e03817/twitter-sentiment-analysis/project" />
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/project" />
           </set>
