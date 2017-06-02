@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/MapReduce-Eiffel_Tower.iml" filepath="$PROJECT_DIR$/MapReduce-Eiffel_Tower.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mapreduce-eiffel_tower.iml" filepath="$PROJECT_DIR$/.idea/modules/mapreduce-eiffel_tower.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/mapreduce-eiffel_tower-build.iml" filepath="$PROJECT_DIR$/.idea/modules/mapreduce-eiffel_tower-build.iml" />
     </modules>
   </component>
 </project>
