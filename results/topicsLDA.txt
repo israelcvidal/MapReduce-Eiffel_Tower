@@ -1,0 +1,32 @@
+The topics described by their top-weighted terms:
+Topic 1: tower, visit, must, it's, amazing, views, day, great
+Topic 2: visit, tower, it's, must, amazing, great, views, day
+Topic 3: visit, tower, must, amazing, tickets, day, it's, views
+Topic 4: visit, tower, must, amazing, day, great, views, beautiful
+Topic 5: visit, tower, views, amazing, day, , great, must
+Topic 6: visit, tower, amazing, great, must, it's, tickets, day
+Topic 7: visit, tower, must, day, amazing, , it's, views
+Topic 8: tower, visit, must, views, amazing, day, great, it's
+Topic 9: visit, tower, amazing, day, must, great, views, tickets
+Topic 10: visit, tower, must, amazing, it's, tickets, views, day
+Topic 11: visit, tower, must, views, it's, amazing, day, great
+Topic 12: visit, tower, must, it's, amazing, tickets, day, views
+Topic 13: tower, visit, amazing, must, day, views, tickets, it's
+Topic 14: tower, visit, day, must, amazing, it's, beautiful, views
+Topic 15: visit, tower, must, views, it's, amazing, tickets,
+Topic 16: visit, tower, it's, must, amazing, , views, day
+Topic 17: tower, visit, must, great, tickets, it's, views, amazing
+Topic 18: tower, visit, must, it's, day, tickets, amazing, great
+Topic 19: visit, tower, it's, , amazing, day, must, views
+Topic 20: visit, tower, must, it's, amazing, day, views, beautiful
+Topic 21: visit, tower, must, views, amazing, beautiful, it's, tickets
+Topic 22: visit, tower, amazing, , must, it's, views, day
+Topic 23: visit, tower, amazing, it's, tickets, must, day, views
+Topic 24: tower, visit, must, it's, amazing, day, great,
+Topic 25: visit, tower, must, , day, views, it's, great
+Topic 26: visit, tower, must, views, amazing, it's, tickets, day
+Topic 27: tower, visit, amazing, it's, views, must, great,
+Topic 28: visit, tower, , must, great, views, tickets, it's
+Topic 29: visit, tower, , must, it's, views, day, amazing
+Topic 30: visit, tower, , must, views, amazing, great, day
+Elapsed time: 18563054451ns

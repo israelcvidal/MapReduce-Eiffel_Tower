@@ -33,12 +33,18 @@ object Eiffel_Tower {
 			val textColumn = textFile.select("text").rdd.map(line => line.toString().filterNot(toRemove).toLowerCase)
 			val titleColumn = textFile.select("title").rdd.map(line => line.toString().filterNot(toRemove).toLowerCase)
 
-//    		printTopKWords(textColumn, stopWords)
-//	    	printTopKSentences(textColumn)
-//	    	printTopKDates(textFile)
-//		    runLDA(textFile, spark)
-//			printTopKTopics(titleColumn)
-            printTopKSentiments(textColumn)
+
+
+//            time{printTopKWords(textColumn, stopWords)}
+//			time{printTopKSentences(textColumn)}
+//			time{printTopKDates(textFile)}
+//			time{runLDA(textFile, spark)}
+//			time{printTopKTopics(titleColumn)}
+        val t0 = System.nanoTime()
+
+        printTopKSentiments(textColumn)
+        val t1 = System.nanoTime()
+        println("Elapsed time: " + (t1 - t0) + "ns")
     }
 
 	def countVectorizer(data: DataFrame): (CountVectorizerModel, DataFrame) = {
@@ -130,7 +136,7 @@ object Eiffel_Tower {
 
 	def printTopKSentences(data: RDD[String]): Unit = {
 		val sentenceCount = data
-			.flatMap(line => line.toString().split("\\. |\\? |\\! |\\, |\\; "))
+			.flatMap(line => line.toString().split("\\. |\\? |\\! |\\, |\\; |\\.|\\!|\\?|\\,|\\;"))
 			.filter(sentence => sentence.split(" ").length > 1)
 			.map(sentence => (sentence, 1))
 			.reduceByKey(_ + _)
@@ -171,9 +177,10 @@ object Eiffel_Tower {
 
     def printTopKSentiments(data: RDD[String]): Unit = {
         val sentimentCount = data
-        .flatMap(line => line.toString().split("\\. |\\? |\\! |\\, |\\; "))
-        .map(sentence => (detectSentiment(sentence), 1))
-        .reduceByKey(_ + _)
+          .flatMap(line => line.toString().split("\\. |\\? |\\! |\\, |\\; |\\.|\\!|\\?|\\,|\\;"))
+          .map(sentence => (detectSentiment(sentence), 1))
+//            .map(line => (detectSentiment(line), 1) )
+          .reduceByKey(_ + _)
 
         val topKsentiments = sentimentCount
         .sortBy(word => word._2, ascending = false)
@@ -183,4 +190,11 @@ object Eiffel_Tower {
         topKsentiments.foreach(println)
     }
 
+	def time[R](block: => R): R = {
+		val t0 = System.nanoTime()
+		val result = block    // call-by-name
+		val t1 = System.nanoTime()
+		println("Elapsed time: " + (t1 - t0) + "ns")
+		result
+	}
 }
