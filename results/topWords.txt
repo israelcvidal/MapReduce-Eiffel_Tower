@@ -29,4 +29,4 @@ Top 30 words:
 (tour,796)
 (beautiful,780)
 (level,731)
-Elapsed time: 3765976905ns
+Elapsed time: 1624481606ns

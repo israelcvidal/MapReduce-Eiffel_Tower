@@ -29,4 +29,4 @@ Top 30 dates:
 ([August 11, 2015],25)
 ([August 19, 2015],25)
 ([October 25, 2016],24)
-Elapsed time: 367867115ns
+Elapsed time: 156519131ns

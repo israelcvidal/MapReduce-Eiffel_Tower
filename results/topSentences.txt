@@ -29,4 +29,4 @@ Top 30 sentences:
 (must see,8)
 (it's beautiful,8)
 (go to the top,8)
-Elapsed time: 3607281132ns
+Elapsed time: 668845433ns

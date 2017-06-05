@@ -29,4 +29,4 @@ Top 30 topics:
 (a must,12)
 (a must see in paris,12)
 (a must!,12)
-Elapsed time: 1813540031ns
+Elapsed time: 720223685ns

@@ -1,0 +1,5 @@
+Memória: 7.6GiB
+Processador: Intel® Core™ i5-4570 CPU @ 3.20GHz × 4
+Gráficos: Intel® Haswell Desktop
+Tipo de sistema: 64-bit
+Disco: 483,9GB

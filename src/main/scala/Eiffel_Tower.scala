@@ -40,11 +40,7 @@ object Eiffel_Tower {
 //			time{printTopKDates(textFile)}
 //			time{runLDA(textFile, spark)}
 //			time{printTopKTopics(titleColumn)}
-        val t0 = System.nanoTime()
-
-        printTopKSentiments(textColumn)
-        val t1 = System.nanoTime()
-        println("Elapsed time: " + (t1 - t0) + "ns")
+//	        time{printTopKSentiments(textColumn)}
     }
 
 	def countVectorizer(data: DataFrame): (CountVectorizerModel, DataFrame) = {
